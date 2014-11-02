@@ -11,4 +11,4 @@ At the moment... you'll have to clone this project and run it.
 
 ## Running it
 
-Add your images to `data/source_images` and run `python eigen_avatar.py`.
+Add your images to `data/source_images/` and run `python eigen_avatar.py`.
