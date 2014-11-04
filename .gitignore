@@ -1,6 +1,7 @@
 # Eigenavatar specific
 source_images/
 intermediate_images/
+*.sublime*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
