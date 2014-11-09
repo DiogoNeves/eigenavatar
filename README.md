@@ -7,10 +7,10 @@ Simple project to generate someone's Eigenface from a source of images.
 
 It's a simple program ;)  
 1. Load all images from `data/source_images/`  
-1. Detect faces on every image  
-1. Save all detected faces to `data/intermediate_images/`  
-1. Gives you a chance to remove any unwanted images from intermediate data  
-1. Generate the eigen face from all images in the intermediate directory*  
+2. Detect faces on every image  
+3. Save all detected faces to `data/intermediate_images/`  
+4. Gives you a chance to remove any unwanted images from intermediate data  
+5. Generate the eigen face from all images in the intermediate directory*  
 
 *- not yet implemented
 
