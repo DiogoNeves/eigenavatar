@@ -3,93 +3,65 @@
 
 """Generate an EigenFace from a few faces found in images."""
 
-import string
-import random
-from SimpleCV import Image, HaarCascade
-from collections import namedtuple
-from types import StringTypes
+from SimpleCV import Image, HaarCascade, ImageSet
 
 
-Rectangle = namedtuple('Rectangle', ['x', 'y', 'width', 'height'])
-
-
-def load_images(path):
-    """Load all images in the given path.
-    path (str) - Relative or absolute path to a directory, including the
-                 trailing '/'.
-                 Empty string is treated the same as '.'
-    Returns list of Image or empty list if none is found.
-    """
-    assert isinstance(path, StringTypes)
-    assert len(path) == 0 or path[-1] == '/'
-
-    return []
-
-
-def get_unique_filename():
-    """Get a new unique file name from random letters and digits.
-    The set of valid characters is the same as
-    string.ascii_letters + string.digits
-    """
-    return ''.join([random.choice(string.ascii_letters + string.digits)
-                    for _ in range(8)])
-
-
-def save_images(images, path):
-    """Save all images to the given path.
-    images (list(Image)) - Images to save, assumes they're all valid.
-    path (str) - Relative or absolute path to a directory, including the
-                 trailing '/'.
-                 Empty string is treated the same as '.'
-    May raise an exception if it fails to save an image.
-    """
-    assert isinstance(images, list)
-    assert all([isinstance(image, Image) for image in images])
-    assert isinstance(path, StringTypes)
-    assert len(path) == 0 or path[-1] == '/'
-
-    for image in images:
-        filename = '%s%s.jpg' % (path, get_unique_filename())
-        image.save(filename)
+_SOURCE_DIR = 'data/source_images/'
+_INTERMEDIATE_DIR = 'data/intermediate_images/'
 
 
 def get_faces(image, haar_cascade):
-    """Get all face rectangles in the image.
+    """Get all faces in the image.
     image (Image) - Image object to find faces in.
                     Has to be valid.
     haar_cascade (HaarCascade) - A valid HaarCascade feature detector.
-    Returns list of images containing the faces detected or empty list if none
-    is found.
+    Returns list with all faces found in image. Empty list if no faces
+        were found.
     """
     assert isinstance(image, Image)
     assert isinstance(haar_cascade, HaarCascade)
 
     detected_features = image.findHaarFeatures(haar_cascade)
+
+    # We don't use ImageSet here because this list will usually be concatenated
+    # with something else and we want to avoid the overhead.
+    # Simply extend an existing ImageSet and you'll get there.
     return [feature.crop() for feature in detected_features]
 
 
+def _clear_intermediate_data():
+    import os
+    filelist = [file_ for file_ in os.listdir(_INTERMEDIATE_DIR)
+                if file_.endswith('.png')]
+    for file_ in filelist:
+        os.remove(_INTERMEDIATE_DIR + file_)
+
+
 def pre_process_data():
-    """Pre-process the data folder to find all images and crop all faces."""
-    images = load_images('data/source_images/')
+    """Pre-process the data folder to find all images and crop all faces.
+    WARNING: This will clear all pngs in the intermediate_images directory!
+    """
+    images = ImageSet(directory=_SOURCE_DIR)
     face_haar_cascade = HaarCascade('face2.xml')
-    cropped_images = []
+    cropped_images = ImageSet()
     for image in images:
         cropped_images.extend(get_faces(image, face_haar_cascade))
-    save_images(cropped_images, 'data/intermediate_images/')
+
+    _clear_intermediate_data()
+    cropped_images.save(_INTERMEDIATE_DIR)
 
 
 def test_get_faces():
+    """Test get faces against an image without any faces and one with faces."""
     face_haar_cascade = HaarCascade('face2.xml')
-    results = [(Image('./data/source_images/false.jpg'), 0),
-               (Image('./data/source_images/photo2.jpg'), 2)]
+    results = [(Image(_SOURCE_DIR + 'false.jpg'), 0),
+               (Image(_SOURCE_DIR + 'photo2.jpg'), 2)]
     for result in results:
         faces = get_faces(result[0], face_haar_cascade)
         assert len(faces) == result[1]
 
 
 if __name__ == '__main__':
-    # use `python -m py.test eigen_avatar.py` for now
-    
-    # pre_process_data()
-
+    # use `python -m py.test eigen_avatar.py` to test!
+    pre_process_data()
 
