@@ -21,5 +21,5 @@ May work with others but I haven't tested.
 
 `python -m py.test eigen_avatar.py`
 
-_I'm running as a module to avoid py.test using a different python. Feel free 
-to use the normal `py.test .`_
+_I'm running as a module to avoid py.test using a different python.  
+Feel free to use the normal `py.test .`_
