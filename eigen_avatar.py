@@ -3,6 +3,8 @@
 
 """Generate an EigenFace from a few faces found in images."""
 
+import string
+import random
 from SimpleCV import Image, HaarCascade
 from collections import namedtuple
 from types import StringTypes
@@ -24,6 +26,11 @@ def load_images(path):
     return []
 
 
+def get_unique_filename():
+    return ''.join([random.choice(string.ascii_letters + string.digits)
+                    for _ in range(8)])
+
+
 def save_images(images, path):
     """Save all images to the given path.
     images (list(Image)) - Images to save, assumes they're all valid.
@@ -36,6 +43,10 @@ def save_images(images, path):
     assert all([isinstance(image, Image) for image in images])
     assert isinstance(path, StringTypes)
     assert len(path) == 0 or path[-1] == '/'
+
+    for image in images:
+        filename = '%s%s.jpg' % (path, get_unique_filename())
+        image.save(filename)
 
 
 def get_faces(image, haar_cascade):
@@ -74,6 +85,7 @@ def test_get_faces():
 
 if __name__ == '__main__':
     # use `python -m py.test eigen_avatar.py` for now
-    pass
+    
+    # pre_process_data()
 
 
