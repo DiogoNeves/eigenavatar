@@ -27,6 +27,10 @@ def load_images(path):
 
 
 def get_unique_filename():
+    """Get a new unique file name from random letters and digits.
+    The set of valid characters is the same as
+    string.ascii_letters + string.digits
+    """
     return ''.join([random.choice(string.ascii_letters + string.digits)
                     for _ in range(8)])
 
