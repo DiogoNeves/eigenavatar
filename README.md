@@ -12,7 +12,7 @@ It's a simple program ;)
 4. Gives you a chance to remove any unwanted images from intermediate data  
 5. Generate the eigen face from all images in the intermediate directory*  
 
-*- not yet implemented
+*- _not yet implemented_
 
 
 ## Installing it
