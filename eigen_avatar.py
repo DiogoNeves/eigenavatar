@@ -11,15 +11,20 @@ _SOURCE_DIR = 'data/source_images/'
 _INTERMEDIATE_DIR = 'data/intermediate_images/'
 
 size = namedtuple('Size', ['width', 'height'])
-_IMAGE_SIZE = size(128, 128)
+_IMAGE_SIZE = size(240, 240)
+# This is inclusive and will discard if it is smaller in any dimension
+_SIZE_THRESHOLD = size(150, 150)
 
 
 def get_faces(image, haar_cascade):
     """Get all faces in the image.
-    image (Image) - Image object to find faces in.
-                    Has to be valid.
-    haar_cascade (HaarCascade) - A valid HaarCascade feature detector.
-    Returns list with all faces found in image. Empty list if no faces
+
+    Arguments:
+        image: A valid Image object to find faces in.
+        haar_cascade: A valid HaarCascade feature detector.
+
+    Return:
+        A list with all faces found in image. Empty list if no faces
         were found.
     """
     assert isinstance(image, Image)
@@ -43,21 +48,36 @@ def _clear_intermediate_data():
 
 def pre_process_data():
     """Pre-process the data folder to find all images and crop all faces.
-    WARNING: This will clear all pngs in the intermediate_images directory!
+
+    Return:
+        ImageSet of all faces.
     """
     images = ImageSet(directory=_SOURCE_DIR)
     face_haar_cascade = HaarCascade('face2.xml')
-    cropped_images = []
+    cropped_images = ImageSet()
     for image in images:
         cropped_images.extend(get_faces(image, face_haar_cascade))
 
-    resized_images = ImageSet()
-    for image in cropped_images:
-        resized_images.append(image.resize(_IMAGE_SIZE.width,
-                                           _IMAGE_SIZE.height))
+    return cropped_images
 
-    _clear_intermediate_data()
-    resized_images.save(_INTERMEDIATE_DIR)
+
+def compute_eigen_faces(faces):
+    """Compute the eigen faces of the images passed in.
+    Assume images are always a valid ImageSet but may be empty.
+
+    This will use the whole set of faces to train the eigen faces.
+    If you need test data, split it outside this method.
+
+    Arguments:
+        faces: A valid ImageSet of face images to train the eigen faces.
+
+    Return:
+        An image representing the eigen faces for the input set.
+    """
+    assert isinstance(faces, ImageSet)
+
+    # TODO: FINISH!
+    return faces.average(mode='average')
 
 
 def test_get_faces():
@@ -72,5 +92,12 @@ def test_get_faces():
 
 if __name__ == '__main__':
     # use `python -m py.test eigen_avatar.py` to test!
-    pre_process_data()
+    processed_faces = pre_process_data()
+
+    _clear_intermediate_data()
+    processed_faces.save(_INTERMEDIATE_DIR)
+
+    eigen_faces = compute_eigen_faces(processed_faces)
+    eigen_faces.show()
+    raw_input()
 
