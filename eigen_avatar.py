@@ -4,10 +4,14 @@
 """Generate an EigenFace from a few faces found in images."""
 
 from SimpleCV import Image, HaarCascade, ImageSet
+from collections import namedtuple
 
 
 _SOURCE_DIR = 'data/source_images/'
 _INTERMEDIATE_DIR = 'data/intermediate_images/'
+
+size = namedtuple('Size', ['width', 'height'])
+_IMAGE_SIZE = size(128, 128)
 
 
 def get_faces(image, haar_cascade):
@@ -43,12 +47,17 @@ def pre_process_data():
     """
     images = ImageSet(directory=_SOURCE_DIR)
     face_haar_cascade = HaarCascade('face2.xml')
-    cropped_images = ImageSet()
+    cropped_images = []
     for image in images:
         cropped_images.extend(get_faces(image, face_haar_cascade))
 
+    resized_images = ImageSet()
+    for image in cropped_images:
+        resized_images.append(image.resize(_IMAGE_SIZE.width,
+                                           _IMAGE_SIZE.height))
+
     _clear_intermediate_data()
-    cropped_images.save(_INTERMEDIATE_DIR)
+    resized_images.save(_INTERMEDIATE_DIR)
 
 
 def test_get_faces():
