@@ -34,3 +34,8 @@ May work with others but I haven't tested.
 
 _I'm running as a module to avoid py.test using a different python.  
 Feel free to use the normal `py.test .`_
+
+
+## Using
+
+LFW Image Dataset - http://vis-www.cs.umass.edu/lfw/ (not redistributed here)
