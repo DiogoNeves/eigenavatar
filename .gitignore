@@ -3,6 +3,9 @@ source_images/
 intermediate_images/
 *.sublime*
 
+# Rope
+.ropeproject/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
