@@ -46,13 +46,12 @@ def _clear_intermediate_data():
         os.remove(_INTERMEDIATE_DIR + file_)
 
 
-def pre_process_data():
+def pre_process_data(images):
     """Pre-process the data folder to find all images and crop all faces.
 
     Return:
         ImageSet of all faces.
     """
-    images = ImageSet(directory=_SOURCE_DIR)
     face_haar_cascade = HaarCascade('face2.xml')
     cropped_images = ImageSet()
     for image in images:
@@ -80,6 +79,37 @@ def compute_eigen_faces(faces):
     return faces.average(mode='average')
 
 
+def load_lfw_images(directory, set_filename):
+    """Load all images in directory that are listed in set_file.
+    LFW dataset has a folder for each person.
+
+    The convention is:
+        Firstname_Surname_####.jpg
+        where #### is the number in set_file, formatted to 4 digits (leading 0s)
+
+    See: http://vis-www.cs.umass.edu/lfw/
+
+    Arguments:
+        directory: Path to the top directory of all other lfw folders.
+        set_filename: Path to the text file containing a list of names and photo
+                    numbers to load.
+
+    Return:
+        List of all the loaded images.
+    """
+    loaded_images = []
+    with open(set_filename, 'r') as set_file:
+        nimages = int(set_file.readline())
+        for i in xrange(nimages):
+            person, photo = set_file.readline().strip().split('\t')
+            image_filename = '%s/%s/%s_%04d.jpg' % (directory, person, person,
+                                                    int(photo))
+            loaded_images.append(Image(image_filename))
+
+        assert len(loaded_images) == nimages
+    return loaded_images
+
+
 def test_get_faces():
     """Test get faces against an image without any faces and one with faces."""
     face_haar_cascade = HaarCascade('face2.xml')
@@ -92,12 +122,13 @@ def test_get_faces():
 
 if __name__ == '__main__':
     # use `python -m py.test eigen_avatar.py` to test!
-    processed_faces = pre_process_data()
+    images = load_lfw_images(_SOURCE_DIR, _SOURCE_DIR + 'peopleDevTrain.txt')
+    processed_faces = pre_process_data(images)
 
     _clear_intermediate_data()
     processed_faces.save(_INTERMEDIATE_DIR)
 
     eigen_faces = compute_eigen_faces(processed_faces)
     eigen_faces.show()
-    raw_input()
+    raw_input('Press return to exit...')
 
